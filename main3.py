@@ -20,9 +20,9 @@ spawnRate = 2000
 
 # Load Images
 background = pygame.image.load("assets/image/background.png")
-title_img = pygame.image.load("assets/image/title.png")
+title_img = pygame.image.load("assets/image/icons/title.png")
 
-play_img = pygame.image.load("assets/image/play.png")
+play_img = pygame.image.load("assets/image/icons/play.png")
 easy_img = pygame.image.load("assets/image/easy.png")
 medium_img = pygame.image.load("assets/image/medium.png")
 hard_img = pygame.image.load("assets/image/hard.png")
