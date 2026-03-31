@@ -23,9 +23,9 @@ background = pygame.image.load("assets/image/background.png")
 title_img = pygame.image.load("assets/image/icons/title.png")
 
 play_img = pygame.image.load("assets/image/icons/play.png")
-easy_img = pygame.image.load("assets/image/easy.png")
-medium_img = pygame.image.load("assets/image/medium.png")
-hard_img = pygame.image.load("assets/image/hard.png")
+easy_img = pygame.image.load("assets/image/icons/easymodebutton.png")
+medium_img = pygame.image.load("assets/image/icons/mediummodebutton.png")
+hard_img = pygame.image.load("assets/image/icons/hardmodebutton.png")
 
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 title_img = pygame.transform.scale(title_img, (1000,200))
@@ -125,15 +125,18 @@ class Button:
 play_button = Button(play_img, 375, 350)
 
 easy_button = Button(easy_img, 300, 350)
-medium_button = Button(medium_img, 400, 350)
-hard_button = Button(hard_img, 500, 350)
+medium_button = Button(medium_img, 425, 350)
+hard_button = Button(hard_img, 550, 350)
 
 # =============================
 # ENEMY SPAWNER
 # =============================
 
 def enemySpawner(event):
-
+    print(hard_img.get_width())
+    print(medium_img.get_width())
+    print(hard_img.get_height())
+    print(medium_img.get_height())
     global skullFrameIndex,reaperFrameIndex,skull,reaper,spawnToggle
 
     if event.type == enemySpawnTimer:
