@@ -27,6 +27,12 @@ easy_img = pygame.image.load("assets/image/icons/easymodebutton.png")
 medium_img = pygame.image.load("assets/image/icons/mediummodebutton.png")
 hard_img = pygame.image.load("assets/image/icons/hardmodebutton.png")
 
+bridgeMap = pygame.image.load("assets/image/maps/bridge.jpg")
+castleMap = pygame.image.load("assets/image/maps/castle map thing.jpg")
+longMap = pygame.image.load("assets/image/maps/easy fodder baby map.jpg")
+anotherBrickMap = pygame.image.load("assets/image/maps/literally another brick.jpg")
+blonsMap = pygame.image.load("assets/image/maps/literally blons.jpg")
+
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 title_img = pygame.transform.scale(title_img, (1000,200))
 play_img = pygame.transform.scale(play_img, (100,100))
@@ -128,6 +134,7 @@ easy_button = Button(easy_img, 300, 350)
 medium_button = Button(medium_img, 425, 350)
 hard_button = Button(hard_img, 550, 350)
 
+bridgeMapButton = Button(bridgeMap, 550, 100)
 # =============================
 # ENEMY SPAWNER
 # =============================
@@ -255,6 +262,10 @@ while running:
                     state = "mode"
 
             elif state == "mode":
+                if play_button.clicked(mouse_pos):
+                    state = "map"
+
+            elif state == "mode":
 
                 if easy_button.clicked(mouse_pos):
                     enemySpeed = 2
@@ -293,6 +304,9 @@ while running:
         medium_button.draw()
         hard_button.draw()
 
+    elif state == "map":
+        text = font.render("Please select a map", True, (255, 255, 255))
+        screen.blit(text, (20,20))
     # GAME
     elif state == "game":
 
