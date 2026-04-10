@@ -18,6 +18,10 @@ font = pygame.font.Font("assets/font/Pixeltype.ttf", 32)
 enemySpeed = 2
 spawnRate = 2000
 
+# Declaration part thingamajig
+global mapChosen
+mapChosen = None
+
 # Load Images
 background = pygame.image.load("assets/image/background.png")
 title_img = pygame.image.load("assets/image/icons/title.png")
@@ -32,6 +36,8 @@ castleMap = pygame.image.load("assets/image/maps/castle map thing.jpg")
 longMap = pygame.image.load("assets/image/maps/easy fodder baby map.jpg")
 anotherBrickMap = pygame.image.load("assets/image/maps/literally another brick.jpg")
 blonsMap = pygame.image.load("assets/image/maps/literally blons.jpg")
+
+bridgeMapButtonSizedDown = pygame.transform.scale(bridgeMap, (160, 90))
 
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 title_img = pygame.transform.scale(title_img, (1000,200))
@@ -81,16 +87,7 @@ spawnToggle = 0
 # =============================
 
 PATH = [
-("up",100),
-("right",410),
-("up",230),
-("left",80),
-("up",75),
-("left",330),
-("down",75),
-("left",180),
-("down",75),
-("left",100)
+
 ]
 
 # =============================
@@ -126,6 +123,17 @@ class Button:
 
     def clicked(self, pos):
         return self.rect.collidepoint(pos)
+    
+class MapButton:
+    def __init__(self, image, x, y):
+        self.image = image
+        self.rect = self.image.get_rect(topleft=(x,y))
+
+    def mapDraw(self):
+        screen.blit(self.image, self.rect)
+
+    def mapClicked(self,pos):
+        return self.rect.collidepoint(pos)
 
 # Buttons
 play_button = Button(play_img, 375, 350)
@@ -134,7 +142,7 @@ easy_button = Button(easy_img, 300, 350)
 medium_button = Button(medium_img, 425, 350)
 hard_button = Button(hard_img, 550, 350)
 
-bridgeMapButton = Button(bridgeMap, 550, 100)
+bridgeMapButton = MapButton(bridgeMapButtonSizedDown, 200, 100)
 # =============================
 # ENEMY SPAWNER
 # =============================
@@ -242,8 +250,9 @@ def enemyMover(enemyList):
 running = True
 
 while running:
-
-    screen.blit(background,(0,0))
+    
+    if mapChosen == None:
+        screen.blit(background,(0,0))
 
     for event in pygame.event.get():
 
@@ -251,6 +260,7 @@ while running:
             running = False
 
         if state == "game":
+            screen.blit(mapChosen, (0, 0))
             enemySpawner(event)
 
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -262,7 +272,7 @@ while running:
                     state = "mode"
 
             elif state == "mode":
-                if play_button.clicked(mouse_pos):
+                if easy_button.clicked(mouse_pos) or medium_button.clicked(mouse_pos) or hard_button.clicked(mouse_pos):
                     state = "map"
 
             elif state == "mode":
@@ -271,19 +281,29 @@ while running:
                     enemySpeed = 2
                     spawnRate = 2000
                     pygame.time.set_timer(enemySpawnTimer, spawnRate)
-                    state = "game"
+                    state = "map"
 
                 if medium_button.clicked(mouse_pos):
                     enemySpeed = 3
                     spawnRate = 1400
                     pygame.time.set_timer(enemySpawnTimer, spawnRate)
-                    state = "game"
+                    state = "map"
 
                 if hard_button.clicked(mouse_pos):
                     enemySpeed = 4
                     spawnRate = 900
                     pygame.time.set_timer(enemySpawnTimer, spawnRate)
+                    state = "map"
+
+            elif state == "map":
+
+                if bridgeMapButton.mapClicked(mouse_pos):
+                    PATH.append(("up", 100))
+                    PATH.append(("right", 200))
                     state = "game"
+                    mapChosen = bridgeMap
+
+
 
     # MENU
     if state == "menu":
@@ -303,10 +323,12 @@ while running:
         easy_button.draw()
         medium_button.draw()
         hard_button.draw()
-
+    #map select
     elif state == "map":
         text = font.render("Please select a map", True, (255, 255, 255))
         screen.blit(text, (20,20))
+
+        bridgeMapButton.mapDraw()
     # GAME
     elif state == "game":
 
