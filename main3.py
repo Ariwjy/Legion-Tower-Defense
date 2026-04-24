@@ -37,6 +37,12 @@ longMap = pygame.image.load("assets/image/maps/easy fodder baby map.jpg")
 anotherBrickMap = pygame.image.load("assets/image/maps/literally another brick.jpg")
 blonsMap = pygame.image.load("assets/image/maps/literally blons.jpg")
 
+wizard = pygame.image.load("assets/image/icons/witchguycopy.png")
+wizardTower = pygame.transform.scale(wizard, (80, 80))
+shopIconTemp = pygame.image.load("assets/image/icons/shop icon.png")
+shopIcon = pygame.transform.scale(shopIconTemp, (150, 96.47))
+shopPanelTemp = pygame.image.load("assets/image/icons/shop panel.png")
+shopPanel = pygame.transform.scale(shopPanelTemp, (200, 600))
 bridgeMapButtonSizedDown = pygame.transform.scale(bridgeMap, (160, 90))
 
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
@@ -83,6 +89,12 @@ enemyDirection = []
 spawnToggle = 0
 
 # =============================
+# TOWER DATA
+# =============================
+
+towers = []
+dragPos = (0, 0)
+# =============================
 # PATH
 # =============================
 
@@ -108,7 +120,8 @@ pygame.time.set_timer(reaperAnimationTimer, 400)
 # =============================
 
 state = "menu"
-
+isShopOpen = False
+isDraggingATower = False
 # =============================
 # BUTTON CLASS
 # =============================
@@ -120,9 +133,13 @@ class Button:
 
     def draw(self):
         screen.blit(self.image, self.rect)
+        # print("shop drawn")
 
     def clicked(self, pos):
         return self.rect.collidepoint(pos)
+    
+    # def moveShopButton(self):
+    #     screen.blit(self.image, (630, 480))
     
 class MapButton:
     def __init__(self, image, x, y):
@@ -134,6 +151,24 @@ class MapButton:
 
     def mapClicked(self,pos):
         return self.rect.collidepoint(pos)
+    
+class Tower:
+    def __init___(self, image, x, y, range, firerate, damage, rotation):
+        self.image = image
+        self.x = x
+        self.y = y
+        self.range = range
+        self.firerate = firerate
+        self.damage = damage
+        self.rotation = rotation
+        self.rect = self.image.get_rect(center=(x, y))
+
+    def drawTower(self):
+        self.rect.center=(self.x, self.y)
+        screen.blit(self.image, self.rect)
+        pygame.draw.circle(screen, (0, 0, 200), (self.x, self.y), self.range, 1)
+    
+
 
 # Buttons
 play_button = Button(play_img, 375, 350)
@@ -142,16 +177,22 @@ easy_button = Button(easy_img, 300, 350)
 medium_button = Button(medium_img, 425, 350)
 hard_button = Button(hard_img, 550, 350)
 
+wizardTowerButton = Button(wizardTower, 720, 80)
+# 
+shopButton = Button(shopIcon, 10, 480)
+# if isShopOpen:
+#     shopButton.moveShopButton
+
 bridgeMapButton = MapButton(bridgeMapButtonSizedDown, 200, 100)
 # =============================
 # ENEMY SPAWNER
 # =============================
 
 def enemySpawner(event):
-    print(hard_img.get_width())
-    print(medium_img.get_width())
-    print(hard_img.get_height())
-    print(medium_img.get_height())
+    # print(hard_img.get_width())
+    # print(medium_img.get_width())
+    # print(hard_img.get_height())
+    # print(medium_img.get_height())
     global skullFrameIndex,reaperFrameIndex,skull,reaper,spawnToggle
 
     if event.type == enemySpawnTimer:
@@ -263,6 +304,22 @@ while running:
             screen.blit(mapChosen, (0, 0))
             enemySpawner(event)
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+
+                if shopButton.clicked(mouse_pos):
+                    isShopOpen = not isShopOpen
+                
+                elif isShopOpen and wizardTowerButton.clicked():
+                    isDraggingATower = True
+                
+            elif event.type == pygame.MOUSEMOTION:
+                dragPos = pygame.mouse.get_pos()
+
+            elif event.type == pygame.MOUSEBUTTONUP:
+                towers.append(Tower(wizardTower, dragPos[0], dragPos[1], 300))
+                isDraggingATower = False
+
         if event.type == pygame.MOUSEBUTTONDOWN:
 
             mouse_pos = pygame.mouse.get_pos()
@@ -331,11 +388,20 @@ while running:
         bridgeMapButton.mapDraw()
     # GAME
     elif state == "game":
-
+        # print("<>")
         text = font.render("Game Started!",True,(255,255,255))
         screen.blit(text,(20,20))
 
         enemyRectList = enemyMover(enemyRectList)
+    
+        shopButton.draw()
+
+        if isShopOpen:
+            screen.blit(shopPanel, (700, 0))
+            wizardTowerButton.draw()
+        
+        for tower in towers:
+            tower.drawTower()
 
     pygame.display.update()
     clock.tick(FPS)
