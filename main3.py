@@ -153,14 +153,14 @@ class MapButton:
         return self.rect.collidepoint(pos)
     
 class Tower:
-    def __init___(self, image, x, y, range, firerate, damage, rotation):
-        self.image = image
+    def __init__(self, x, y):
+        self.image = wizardTower
         self.x = x
         self.y = y
-        self.range = range
-        self.firerate = firerate
-        self.damage = damage
-        self.rotation = rotation
+        self.range = 300
+        # self.firerate = firerate
+        # self.damage = damage
+        # self.rotation = rotation
         self.rect = self.image.get_rect(center=(x, y))
 
     def drawTower(self):
@@ -310,15 +310,16 @@ while running:
                 if shopButton.clicked(mouse_pos):
                     isShopOpen = not isShopOpen
                 
-                elif isShopOpen and wizardTowerButton.clicked():
+                elif isShopOpen and wizardTowerButton.clicked(mouse_pos):
                     isDraggingATower = True
                 
             elif event.type == pygame.MOUSEMOTION:
                 dragPos = pygame.mouse.get_pos()
 
             elif event.type == pygame.MOUSEBUTTONUP:
-                towers.append(Tower(wizardTower, dragPos[0], dragPos[1], 300))
-                isDraggingATower = False
+                if isDraggingATower:
+                    towers.append(Tower(dragPos[0], dragPos[1]))
+                    isDraggingATower = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
 
