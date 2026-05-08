@@ -38,12 +38,18 @@ anotherBrickMap = pygame.image.load("assets/image/maps/literally another brick.j
 blonsMap = pygame.image.load("assets/image/maps/literally blons.jpg")
 
 wizard = pygame.image.load("assets/image/icons/witchguycopy.png")
-wizardTower = pygame.transform.scale(wizard, (80, 80))
+wizardTower = pygame.transform.scale(wizard, (50, 50))
+knight = pygame.image.load("assets/image/icons/knightcopy.png")
+knightTower = pygame.transform.scale(knight, (50, 50))
 shopIconTemp = pygame.image.load("assets/image/icons/shop icon.png")
 shopIcon = pygame.transform.scale(shopIconTemp, (150, 96.47))
 shopPanelTemp = pygame.image.load("assets/image/icons/shop panel.png")
 shopPanel = pygame.transform.scale(shopPanelTemp, (200, 600))
 bridgeMapButtonSizedDown = pygame.transform.scale(bridgeMap, (160, 90))
+castleMapButtonSizedDown = pygame.transform.scale(castleMap, (160, 90))
+longMapButtonSizedDown = pygame.transform.scale(longMap, (160, 90))
+anotherBrickMapButtonSizedDown = pygame.transform.scale(anotherBrickMap, (160, 90))
+blonsMapButtonSizedDown = pygame.transform.scale(blonsMap, (160, 90))
 
 background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 title_img = pygame.transform.scale(title_img, (1000,200))
@@ -85,7 +91,8 @@ enemyType = []
 enemyPathIndex = []
 enemyDistance = []
 enemyDirection = []
-
+enemySpawnPosX = []
+enemySpawnPosY = []
 spawnToggle = 0
 
 # =============================
@@ -153,20 +160,19 @@ class MapButton:
         return self.rect.collidepoint(pos)
     
 class Tower:
-    def __init__(self, x, y):
-        self.image = wizardTower
+    def __init__(self, x, y, tower, range):
+        self.image = tower
         self.x = x
         self.y = y
-        self.range = 300
+        self.range = range
         # self.firerate = firerate
         # self.damage = damage
-        # self.rotation = rotation
         self.rect = self.image.get_rect(center=(x, y))
 
     def drawTower(self):
         self.rect.center=(self.x, self.y)
         screen.blit(self.image, self.rect)
-        pygame.draw.circle(screen, (0, 0, 200), (self.x, self.y), self.range, 1)
+        pygame.draw.circle(screen, (0, 0, 200), (self.x, self.y), self.range, 5)
     
 
 
@@ -178,12 +184,17 @@ medium_button = Button(medium_img, 425, 350)
 hard_button = Button(hard_img, 550, 350)
 
 wizardTowerButton = Button(wizardTower, 720, 80)
+knightTowerButton = Button(knightTower, 710, 130)
 # 
 shopButton = Button(shopIcon, 10, 480)
 # if isShopOpen:
 #     shopButton.moveShopButton
 
 bridgeMapButton = MapButton(bridgeMapButtonSizedDown, 200, 100)
+castleMapButton = MapButton(castleMapButtonSizedDown, 400, 100)
+longMapButton = MapButton(longMapButtonSizedDown, 600, 100)
+anotherBrickMapButton = MapButton(longMapButtonSizedDown, 200, 230)
+blonsMapButton = MapButton(blonsMapButtonSizedDown, 400, 230)
 # =============================
 # ENEMY SPAWNER
 # =============================
@@ -193,13 +204,16 @@ def enemySpawner(event):
     # print(medium_img.get_width())
     # print(hard_img.get_height())
     # print(medium_img.get_height())
-    global skullFrameIndex,reaperFrameIndex,skull,reaper,spawnToggle
+    global skullFrameIndex,reaperFrameIndex,skull,reaper,spawnToggle, enemySpawnPosX, enemySpawnPosY, spawnPosX, spawnPosY
 
+    spawnPosX = enemySpawnPosX[0]
+    spawnPosY = enemySpawnPosY[0]
+    
     if event.type == enemySpawnTimer:
 
         if spawnToggle == 0:
 
-            rect = skull.get_rect(midbottom=(320,600))
+            rect = skull.get_rect(midbottom=(spawnPosX, spawnPosY))
             enemyRectList.append(rect)
             enemyType.append("skull")
             enemyDirection.append("right")
@@ -207,7 +221,7 @@ def enemySpawner(event):
 
         else:
 
-            rect = reaper.get_rect(midbottom=(320,600))
+            rect = reaper.get_rect(midbottom=(spawnPosX, spawnPosY))
             enemyRectList.append(rect)
             enemyType.append("reaper")
             enemyDirection.append("right")
@@ -312,13 +326,22 @@ while running:
                 
                 elif isShopOpen and wizardTowerButton.clicked(mouse_pos):
                     isDraggingATower = True
+                    towerDragged = "wizard"
+                
+                elif isShopOpen and knightTowerButton.clicked(mouse_pos):
+                    isDraggingATower = True
+                    towerDragged = "knight"
                 
             elif event.type == pygame.MOUSEMOTION:
                 dragPos = pygame.mouse.get_pos()
 
             elif event.type == pygame.MOUSEBUTTONUP:
-                if isDraggingATower:
-                    towers.append(Tower(dragPos[0], dragPos[1]))
+                if isDraggingATower and towerDragged == "knight":
+                    towers.append(Tower(dragPos[0], dragPos[1], knightTower, 50))
+                    isDraggingATower = False
+                
+                elif isDraggingATower and towerDragged == "wizard":
+                    towers.append(Tower(dragPos[0], dragPos[1], wizardTower, 300))
                     isDraggingATower = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -358,8 +381,40 @@ while running:
                 if bridgeMapButton.mapClicked(mouse_pos):
                     PATH.append(("up", 100))
                     PATH.append(("right", 200))
+                    enemySpawnPosX.append(100)
+                    enemySpawnPosY.append(200)
                     state = "game"
                     mapChosen = bridgeMap
+                
+
+                elif castleMapButton.mapClicked(mouse_pos):
+                    PATH.append(("up", 150))
+                    PATH.append(("left", 300))
+                    enemySpawnPosX.append(460)
+                    enemySpawnPosY.append(600)
+                    state = "game"
+                    mapChosen = castleMap
+                
+                elif longMapButton.mapClicked(mouse_pos):
+                    PATH.append(("up", 100))
+                    enemySpawnPosX.append(700)
+                    enemySpawnPosY.append(350)
+                    state = "game"
+                    mapChosen = longMap
+                
+                elif anotherBrickMapButton.mapClicked(mouse_pos):
+                    PATH.append(("up", 100))
+                    enemySpawnPosX.append(100)
+                    enemySpawnPosY.append(100)
+                    state = "game"
+                    mapChosen = anotherBrickMap
+                
+                elif blonsMapButton.mapClicked(mouse_pos):
+                    PATH.append(("up", 100))
+                    enemySpawnPosX.append(100)
+                    enemySpawnPosY.append(100)
+                    state = "game"
+                    mapChosen = blonsMap
 
 
 
@@ -387,6 +442,10 @@ while running:
         screen.blit(text, (20,20))
 
         bridgeMapButton.mapDraw()
+        castleMapButton.mapDraw()
+        longMapButton.mapDraw()
+        anotherBrickMapButton.mapDraw()
+        blonsMapButton.mapDraw()
     # GAME
     elif state == "game":
         # print("<>")
@@ -400,6 +459,7 @@ while running:
         if isShopOpen:
             screen.blit(shopPanel, (700, 0))
             wizardTowerButton.draw()
+            knightTowerButton.draw()
         
         for tower in towers:
             tower.drawTower()
